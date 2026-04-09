@@ -1,4 +1,4 @@
-name: Node.js CI/CD Pipeline
+name: CI/CD Pipeline - new-lab
 
 on:
   push:
@@ -6,23 +6,28 @@ on:
       - main
 
 jobs:
-  build:
+  ci-cd:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      # Step 1: Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Install Dependencies
-      run: npm install
+      # Step 2: Install Node dependencies (if needed)
+      - name: Install Dependencies
+        run: npm install
 
-    - name: Build Docker Image
-      run: docker build -t my-app .
+      # Step 3: Build Docker image
+      - name: Build Docker Image
+        run: docker build -t new-lab:latest .
 
-    - name: Login to DockerHub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      # Step 4: Run Docker container
+      - name: Run Docker Container
+        run: |
+          docker rm -f new-lab || true
+          docker run -d --name new-lab -p 5000:5000 new-lab:latest
 
-    - name: Push Docker Image
-      run: |
-        docker tag my-app your-dockerhub-username/my-app:latest
-        docker push your-dockerhub-username/my-app:latest
+      # Step 5: Check running containers
+      - name: Check Running Container
+        run: docker ps
